@@ -105,6 +105,9 @@ app.post("/purchase", async (req, res) => {
   const { userID } = req.body;
   const { courseID } = req.body;
   const { quantity } = req.body;
+  console.log("u", userID);
+  console.log("c", courseID);
+  console.log("q", quantity);
   if (!userID || !courseID || !quantity) {
     return res.json({ message: "enter all details!!!!!" });
   }
@@ -138,6 +141,100 @@ app.get("/seecourses", async (req, res) => {
     message: "all courses are displayed down here---->",
     allCourse,
   });
+});
+
+app.post("/getuser", async (req, res) => {
+  const { uid } = req.headers;
+  console.log(uid);
+  const userDetail = await User.findOne({ _id: uid });
+  console.log(userDetail);
+  if (!userDetail) {
+    return res.json({
+      message: "user not found",
+    });
+  }
+  if (userDetail) {
+    return res.json({
+      message: "user located successfully and here are its details",
+      user: userDetail,
+    });
+  }
+});
+
+app.post("/userpurchases", async (req, res) => {
+  const { idUser } = req.body;
+  const coursebuyuser = await Purchase.find();
+  if (!coursebuyuser) {
+    return res.json({
+      message: "user not found",
+    });
+  }
+  if (!coursebuyuser) {
+    return res.json({
+      message: "user dont exist",
+    });
+  }
+  if (coursebuyuser) {
+    return res.json({
+      message: "here are the purchases for the user----",
+      purchase: coursebuyuser,
+    });
+  }
+});
+
+app.post("/changepass", async (req, res) => {
+  const { email } = req.body;
+  var { password } = req.body;
+  var { newPassword } = req.body;
+  const oldInfo = await User.findOne({ email, password });
+  if (!oldInfo) {
+    return res.json({ message: "email and password didn't match" });
+  }
+  if (oldInfo) {
+    oldInfo.password = newPassword;
+    oldInfo.save();
+    return res.json({
+      message: "Password changed successfully!",
+      user: oldInfo,
+    });
+  }
+});
+app.post("/changeEmail", async (req, res) => {
+  var { email } = req.body;
+  const { password } = req.body;
+  var { newEmail } = req.body;
+  const oldEmail = await User.findOne({ email, password });
+  if (!oldEmail) {
+    return res.json({ message: "email and password didn't match" });
+  }
+  if (oldEmail) {
+    oldEmail.email = newEmail;
+    oldEmail.save();
+    return res.json({
+      message: "Email changed successfully!",
+      user: oldEmail,
+    });
+  }
+});
+
+app.post("/changecourse", async (req, res) => {
+  const { cID } = req.body;
+  var { newName } = req.body;
+  var { newDescription } = req.body;
+  var { newAmount } = req.body;
+  var { newDuration } = req.body;
+  const oldCourse = await Course.findOne({ _id: cID });
+  if (oldCourse) {
+    oldCourse.name = newName;
+    oldCourse.description = newDescription;
+    oldCourse.duration = newDuration;
+    oldCourse.amount = newAmount;
+    oldCourse.save();
+    return res.json({
+      message: "course modified successfully!",
+      course: oldCourse,
+    });
+  }
 });
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
